@@ -1,0 +1,131 @@
+#imports relevant python packages
+import tensorflow as tf
+import numpy as np
+import pandas as pd
+
+#loads the csv document in the compiler, and assigns the variable name 'data' the dataset
+data = pd.read_csv('airbnb.csv', encoding = ('ISO-8859-1'), low_memory = False)
+
+#shows contents of dataframe
+data
+
+#decribes the components of the csv file
+data.describe()
+
+#gives the number of missing values if there are any for each column in the dataset
+data.isnull().sum()
+
+#creates a new dataframe called 'data2' to store changes categorial variables to dummy variables in original 'data' file and also drops 1 column to avoid redundancy
+data2 = pd.get_dummies(data['neighbourhood_group'],drop_first=True)
+
+data2.head()
+
+data3 = pd.get_dummies(data['neighbourhood'],drop_first=True)
+
+data3.head()
+
+data4 = pd.get_dummies(data['room_type'],drop_first=True)
+
+data4.head()
+
+#concatinates 'data2', 'data3 and 'data4' file columns with original 'data' file
+data=pd.concat([data4,data3,data2,data],axis=1)
+
+data.head()
+
+#drops the columns with categorical data that have been converted to numeric data
+data.drop('neighbourhood_group',axis=1,inplace=True)
+data.drop('neighbourhood',axis=1,inplace=True)
+data.drop('room_type',axis=1,inplace=True)
+
+data.head()
+
+#defines the training and testing datasets from original data file
+training = data[0:39116]
+testing = data[39116:]
+
+#shows the number of rows and columns each dataset has
+print(training.shape)
+print(testing.shape)
+
+#Separates true labels from training and testing datasets ([rows, columns]) 
+#So [:, some_value] means all the rows and [some_value, 0:-1] means all the columns except the last one)
+#Similarly [some_value, -1] means only consider the last column
+training_features = training.iloc[:,0: -1]
+training_labels = training.iloc[:, -1]
+testing_features = testing.iloc[:,0:-1]
+testing_labels = testing.iloc[:,-1]
+
+print(training_features.shape)
+print(training_labels.shape)
+
+imports relevant python packages to build the neural network
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense, Dropout, Flatten
+
+
+#define a sequential model
+model = Sequential()
+
+#define the shape of the input layer which corresponds to the no. of columns once more
+model.add(Input(shape=(231,)))
+
+#the dense layer will have 1000 neurons and the activation function being used is relu
+model.add(Dense(1000,activation='relu'))
+
+#adds the droput layer, coming from the dense layer, we add dropout layers to reduce overfitting of the data
+model.add(Dropout(0.2))
+
+#adds another dense layer, coming from the dropout layer with 1000 neurons
+model.add(Dense(1000,activation='relu'))
+
+#adds another dropout layer
+model.add(Dropout(0.2))
+
+#the dense layer will have 1000 neurons and the activation function being used is relu
+model.add(Dense(1000,activation='relu'))
+
+#adds the droput layer, coming from the dense layer, we add dropout layers to reduce overfitting of the data
+model.add(Dropout(0.2))
+
+#adds another dense layer, coming from the dropout layer with 1000 neurons
+model.add(Dense(1000,activation='relu'))
+
+#adds another dropout layer
+model.add(Dropout(0.2))
+
+odel.add(Dense(500,activation='relu'))
+
+
+#configure model training
+model.compile(optimizer='sgd', loss='binary_crossentropy', metrics=['accuracy'])
+
+#train model
+model.fit(training_features, training_labels, epochs=500, validation_data=(testing_features, testing_labels))
+
+#create variable to store predictions made by built algorithm in
+y_pred = model.predict(testing_features).reshape(-1)
+print(y_pred)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,98 @@
+import tensorflow as tf
+import numpy as np
+import pandas as pd
+
+data = pd.read_csv('airbnb.csv', encoding = ('ISO-8859-1'), low_memory = False)
+
+data.head()
+
+data.isnull().sum()
+
+data2 = pd.get_dummies(data['neighbourhood_group'],drop_first=True)
+data3 = pd.get_dummies(data['neighbourhood'],drop_first=True)
+data4 = pd.get_dummies(data['room_type'],drop_first=True)
+
+data=pd.concat([data4,data3,data2,data],axis=1)
+
+data.drop('neighbourhood_group',axis=1,inplace=True)
+data.drop('neighbourhood',axis=1,inplace=True)
+data.drop('room_type',axis=1,inplace=True)
+
+data.head()
+
+training = data[0:39116]
+testing = data[39116:]
+
+print(training.shape)
+print(testing.shape)
+
+training_features = training.iloc[:,0: -1]
+training_labels = training.iloc[:, -1]
+testing_features = testing.iloc[:,0:-1]
+testing_labels = testing.iloc[:,-1]
+
+print(training_features.shape)
+print(training_labels.shape)
+
+from keras import models, layers, optimizers, regularizers
+from keras.utils.vis_utils import model_to_dot
+from IPython.display import SVG
+
+nn2 = models.Sequential()
+nn2.add(layers.Dense(128, input_shape=(training_features.shape[1],), activation='relu'))
+nn2.add(layers.Dense(256, activation='relu'))
+nn2.add(layers.Dense(256, activation='relu'))
+nn2.add(layers.Dense(1, activation='linear'))
+
+nn2.compile(loss='mean_squared_error',
+            optimizer='adam',
+            metrics=['mean_squared_error'])
+
+print(nn2.summary())
+
+nn2_history = nn2.fit(training_features,
+                  training_labels,
+                  epochs=100,
+                  batch_size=256,
+                  validation_split = 0.1)
+
+
+---------------------------------------------------------------------
+
+import sys
+import numpy
+numpy.set_printoptions(threshold=sys.maxsize)
+
+y_test_pred = nn2.predict(testing_features).reshape(-1)
+y_train_pred = nn2.predict(training_features).reshape(-1)
+
+print(y_test_pred.shape)
+print(y_train_pred)
+
+----------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

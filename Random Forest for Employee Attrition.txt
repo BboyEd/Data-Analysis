@@ -1,0 +1,72 @@
+import tensorflow as tf
+import numpy as np
+import pandas as pd
+
+data = pd.read_csv('Employee_Attrition.csv', encoding = ('ISO-8859-1'), low_memory = False)
+
+data.head()
+
+data.isnull().sum()
+
+data2 = pd.get_dummies(data['BusinessTravel'],drop_first=True)
+data3 = pd.get_dummies(data['Department'],drop_first=True)
+data4 = pd.get_dummies(data['EducationField'],drop_first=True)
+data5 = pd.get_dummies(data['Gender'],drop_first=True)
+data6 = pd.get_dummies(data['JobRole'],drop_first=True)
+data7 = pd.get_dummies(data['MaritalStatus'],drop_first=True)
+
+data=pd.concat([data7,data6,data5,data4,data3,data2,data],axis=1)
+
+data.drop('BusinessTravel',axis=1,inplace=True)
+data.drop('Department',axis=1,inplace=True)
+data.drop('EducationField',axis=1,inplace=True)
+data.drop('Gender',axis=1,inplace=True)
+data.drop('JobRole',axis=1,inplace=True)
+data.drop('MaritalStatus',axis=1,inplace=True)
+
+data.head()
+
+training = data[0:1177]
+testing = data[1177:]
+
+print(training.shape)
+print(testing.shape)
+
+X_train = training.iloc[:,0: -1]
+y_train = training.iloc[:, -1]
+X_test = testing.iloc[:,0:-1]
+y_test = testing.iloc[:,-1]
+
+from sklearn.ensemblle import RandomForestClassifier
+model = RandomForestClassifier(n_estimators=100)
+model.fit(X_train,y_train)
+
+model.score(X_test, y_test)
+
+---------------------------------------------------------------------
+
+y_predicted = model.predict(X_test)
+
+print(y_predicted)
+
+dataframe = pd.DataFrame({'y_predicted':y_predicted})
+
+pd.set.option('display.max_rows', None)
+pd.set.option('display.max_columns', None)
+pd.set.option('display.width', None)
+pd.set.option('display.max_colwidth', None)
+
+dataframe
+
+
+
+
+
+
+
+
+
+
+
+
+
